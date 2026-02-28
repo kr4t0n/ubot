@@ -4,4 +4,6 @@ version = "0.1.0"
 description = "A minimal agent designed for u."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "ruff>=0.15.4",
+]
