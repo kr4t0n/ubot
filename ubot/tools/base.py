@@ -21,6 +21,14 @@ class Tool(ABC):
     async def run(self, params: dict[str, Any]) -> ToolResponse:
         raise NotImplementedError
 
+    @property
+    def name(self) -> str:
+        return self.__tool_schema__["function"]["name"]
+
+    @property
+    def schema(self) -> dict[str, Any]:
+        return self.__tool_schema__
+
 
 class ToolRegistry:
     _registry: dict[str, Tool] = {}
@@ -62,9 +70,30 @@ class ToolRegistry:
             logger.error(f"Failed to create tool class {tool_class_name}: {e}")
             raise e
 
+    @classmethod
+    def tools(cls) -> list[Tool]:
+        tools = [cls.create(tool_class_name) for tool_class_name in cls._registry]
+        return tools
+
 
 @ToolRegistry.register
 class ReadTool(Tool):
+    def __init__(self):
+        self.__tool_schema__ = {
+            "type": "function",
+            "function": {
+                "name": "read_tool",
+                "description": "Read a file and return its content",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "path": {"type": "string", "description": "The path to the file to read"},
+                    },
+                },
+                "required": ["path"],
+            },
+        }
+
     async def run(self, params: dict[str, Any]) -> ToolResponse:
         path = params.get("path", "").strip()
 
@@ -79,6 +108,23 @@ class ReadTool(Tool):
 
 @ToolRegistry.register
 class WriteTool(Tool):
+    def __init__(self):
+        self.__tool_schema__ = {
+            "type": "function",
+            "function": {
+                "name": "write_tool",
+                "description": "Write content to a file",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "path": {"type": "string", "description": "The path to the file to write to"},
+                        "content": {"type": "string", "description": "The content to write to the file"},
+                    },
+                },
+                "required": ["path", "content"],
+            },
+        }
+
     async def run(self, params: dict[str, Any]) -> ToolResponse:
         path = params.get("path", "").strip()
         content = params.get("content", "").strip()
@@ -95,6 +141,22 @@ class WriteTool(Tool):
 
 @ToolRegistry.register
 class BashTool(Tool):
+    def __init__(self):
+        self.__tool_schema__ = {
+            "type": "function",
+            "function": {
+                "name": "bash_tool",
+                "description": "Execute a command and return the output",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "command": {"type": "string", "description": "The command to execute"},
+                    },
+                },
+                "required": ["command"],
+            },
+        }
+
     async def run(self, params: dict[str, Any]) -> ToolResponse:
         command = params.get("command", "").strip()
 
