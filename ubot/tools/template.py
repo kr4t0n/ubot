@@ -26,8 +26,6 @@ class ToolTemplate(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    # TODO: define a more robust definition of tool call in future
-    # for now, we use list[any] which is not a good idea
     def parse_tool_calls(self, tool_calls: list[Any]) -> list[ToolCall]:
         raise NotImplementedError
 
