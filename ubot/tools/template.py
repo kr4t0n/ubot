@@ -4,6 +4,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict
 
 from abc import ABC, abstractmethod
+from openai.types.chat.chat_completion_message_tool_call import ChatCompletionMessageToolCall
 from ubot.tools.base import Tool
 
 
@@ -35,7 +36,7 @@ class OpenAIToolTemplate(ToolTemplate):
     def generate_prompt(self) -> list[dict[str, Any]]:
         return [tool.schema for tool in self.tools]
 
-    def parse_tool_calls(self, tool_calls: list[Any]) -> list[ToolCall]:
+    def parse_tool_calls(self, tool_calls: list[ChatCompletionMessageToolCall]) -> list[ToolCall]:
         parsed_tool_calls = []
         for tool_call in tool_calls:
             name = tool_call.function.name
